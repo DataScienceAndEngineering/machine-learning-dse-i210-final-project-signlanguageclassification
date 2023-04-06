@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re 
 from tqdm import tqdm 
-from time import sleep
+from functools import reduce 
 
 
 @click.command()
@@ -19,29 +19,26 @@ def main(input_filepath, output_filepath):
         cleaned data ready to be analyzed (saved in ../processed).
     """
     special_labels = {'space':0,'nothing':1,'del':2}
-    raw_data = np.empty(shape=(120001,))
-    for subdir, dirs, files in os.walk(input_filepath):
-        print(subdir)
-        if len(dirs) != 0:
-            continue
 
-        for img in tqdm(files):
-            image = plt.imread(subdir+'/'+img)
-            if image.shape[2] == 3:
-                image = image.reshape(-1)
-            label = re.search('^(.*?)[^a-zA-Z]',img).group(0)[:-1]
-            if len(label)==1:
-                label = ord(label)
-            else:
-                label = special_labels[label]
+    with open(output_filepath,'a') as file:
 
-            image = np.append(image,label)
-            raw_data = np.vstack((raw_data,image))
+        for subdir, dirs, files in os.walk(input_filepath):
+            print(subdir)
+            if len(dirs) != 0:
+                continue
 
-    print(raw_data.shape)
+            for img in tqdm(files):
+                image = plt.imread(subdir+'/'+img)
+                if image.shape[2] == 3:
+                    image = image.reshape(-1)
+                label = re.search('^(.*?)[^a-zA-Z]',img).group(0)[:-1]
+                if len(label)==1:
+                    label = ord(label)
+                else:
+                    label = special_labels[label]
 
-
-
+                file.write(reduce(lambda x,y:str(x)+','+str(y),image,label)+'\n')
+            break
     #logger = logging.getLogger(__name__)
     #logger.info('making final data set from raw data')
 
