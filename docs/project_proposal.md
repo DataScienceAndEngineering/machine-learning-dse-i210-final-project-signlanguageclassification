@@ -7,7 +7,16 @@
 
 **I. Introduction**
 
+Effective communication is one of the most important aspects in society. However, for people who rely on sign language, communication with those unfamiliar with this communication method is a difficult task. A model that is able to take a video stream from a camera as an input, and then output the letters that are being signed can be an invaluable tool. This model could be deployed to places like hospitals, schools, and government offices to help facilitate communication so that it does not represent a significant barrier. 
+
 **II. Motivation & Problem Statement**
+
+The main form of communication for the deaf and hard of hearing population is sign language. However, language obstacles prevent the deaf and hearing groups from communicating with one another. This communication divide can be closed by sign language identification, which enables automated translation of sign language into written or spoken language.	
+
+The problem of sign language alphabet recognition can be formulated as a machine learning problem. The objective is to create a system that can identify hand motions for every letter of the alphabet and correctly assign them to that letter. The intricacy and variety of sign language movements, as well as the requirement that the system be adaptable to changes in backdrop, lighting, and hand orientation, make this a difficult job. The creation of an effective method for deciphering sign language can greatly improve mobility and communication for the deaf and hard of hearing population, enabling them to interact with hearing people more effectively.
+
+This is a classification problem, where we would likely need a robust model like neural networks. However, exploration of simpler models like logistic regression as a base model to compare to should be explored. Potential preprocessing steps for the images could be edge detection and removal of pixels that are not helpful for the classification problem. This could greatly reduce the computation and training constraints. 
+
 
 **III. Related Work**
 
@@ -21,6 +30,12 @@ Although there are countless examples of impactful sign language interpretation 
 Regardless of the headway made in communication through signing acknowledgment and understanding, there still exists difficulties. For example, fluctuations in marking styles, lighting conditions, foundation mess, and impediments. In the field of applied machine learning, these issues need to be addressed as well as the accuracy and robustness of sign language recognition systems need to be improved.
 
 **IV. Dataset & Features**
+
+data set link - https://www.kaggle.com/code/dansbecker/running-kaggle-kernels-with-a-gpu/input
+
+The dataset that will be used for this project exists on Kaggle and contains images with 29 different signs in American Sign Language. These include 26 letters (A through Z) and the signs for space, delete and nothing.
+The development of a reliable and accurate sign language Interpreter system requires the extraction of appropriate features from the data and the use of appropriate machine learning algorithms to model the relationship between the features and the output labels.
+
 
 **V. Methodology**
 
@@ -38,3 +53,6 @@ A variety of classification models will be evaluated to find the best performing
 To evaluate the performance of the interpreter, a series of experiments will be performed. First, evaluation of the performance of the models on the test data will give a general understanding of any shortcomings. NxN matrices of the accuracy, precision, and recall will be computed. ROC curves for each label will also be plotted to see the relationship between the true positive and false positive rates and the performance comparison to the random classifier. Second, a real-time video feed of sign language via webcam will give insight on specific examples of classification. Similarly, any misclassifications in the test dataset will be observed to determine any issues with the models. Lastly, confidence scores will be calculated to help the user’s understanding of how the model is evaluating each example.
 
 **VII. Conclusion**
+
+In conclusion, sign language interpretation is an important application of machine learning that can help bridge the communication gap between the deaf and hard of hearing community and the hearing community. Sign language interpreters can detect the signs at realtime through the web camera which will be easy to understand by other people. Using this Interpreter they can participate more fully in the society.
+
