@@ -17,6 +17,7 @@ One example is from researchers at the University of Washington who developed a 
 
 Although there are countless examples of impactful sign language interpretation modes, there is still room for improvement. There is a struggle in involving communication through signing acknowledgment frameworks for various applications, for example, gesture-based communication interpretation frameworks, communication through signing learning stages, and correspondence help for the hard of hearing and deaf. In order for people who are deaf or hard of hearing and the general public to communicate effectively, these applications need to be able to recognize sign language in real-time and accurately.
 
+
 Regardless of the headway made in communication through signing acknowledgment and understanding, there still exists difficulties. For example, fluctuations in marking styles, lighting conditions, foundation mess, and impediments. In the field of applied machine learning, these issues need to be addressed as well as the accuracy and robustness of sign language recognition systems need to be improved.
 
 **IV. Dataset & Features**
