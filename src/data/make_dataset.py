@@ -37,7 +37,7 @@ def main(input_filepath, output_filepath):
                 else:
                     label = special_labels[label]
 
-                file.write(reduce(lambda x,y:str(x)+','+str(y),image,label)+'\n')
+                file.write(np.array2string(image,separator=',')+'\n')
             break
     #logger = logging.getLogger(__name__)
     #logger.info('making final data set from raw data')
