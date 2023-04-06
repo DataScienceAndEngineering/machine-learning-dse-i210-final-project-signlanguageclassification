@@ -11,6 +11,14 @@
 
 **III. Related Work**
 
+Machine learning has been used in a lot of research and development in the field of sign language recognition and interpretation. The difficulties associated with sign language recognition and interpretation have been the subject of numerous studies.
+
+One example is from researchers at the University of Washington who developed a sign language recognition system using a combination of computer vision and machine learning. The system tested a Microsoft Kinect sensor to capture the hand and body movements of the signer and then used a Hidden Markov Model(HMM) to recognize the sign. Another example is at Carnegie Mellon University where neural networks were trained using a custom-built glove with sensors to capture the hand movements of the signer and then used to recognize the sign. Lastly, an illustration of a standard-based framework was the American Communication via Gestures (ASL) acknowledgment framework created in 1998. This framework utilized a glove with sensors to catch hand developments and perceived signs in light of predefined rules. While this framework accomplished an acknowledgment exactness of 98%, it was restricted in its capacity to perceive signs performed by various clients with differing hand sizes and shapes.
+
+Although there are countless examples of impactful sign language interpretation modes, there is still room for improvement. There is a struggle in involving communication through signing acknowledgment frameworks for various applications, for example, gesture-based communication interpretation frameworks, communication through signing learning stages, and correspondence help for the hard of hearing and deaf. In order for people who are deaf or hard of hearing and the general public to communicate effectively, these applications need to be able to recognize sign language in real-time and accurately.
+
+Regardless of the headway made in communication through signing acknowledgment and understanding, there still exists difficulties. For example, fluctuations in marking styles, lighting conditions, foundation mess, and impediments. In the field of applied machine learning, these issues need to be addressed as well as the accuracy and robustness of sign language recognition systems need to be improved.
+
 **IV. Dataset & Features**
 
 **V. Methodology**
