@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import re 
 from tqdm import tqdm 
-from functools import reduce 
+import zipfile 
 
 
 @click.command()
@@ -20,25 +20,19 @@ def main(input_filepath, output_filepath):
     """
     special_labels = {'space':0,'nothing':1,'del':2}
 
-    with open(output_filepath,'a') as file:
+    with zipfile.ZipFile(input_filepath) as z:
+        for filename in z.namelist():
+            if not os.path.isdir(filename):
+                with z.open(filename) as f:
+                    image = plt.imread(f)
+                    if image.shape[2]==3:
+                        image = image.reshape(-1)
+                    label = filename.split('/')[1]
+                    if len(label) == 1:
+                        label = ord(label)
+                    else:
+                        label = special_labels[label]
 
-        for subdir, dirs, files in os.walk(input_filepath):
-            print(subdir)
-            if len(dirs) != 0:
-                continue
-
-            for img in tqdm(files):
-                image = plt.imread(subdir+'/'+img)
-                if image.shape[2] == 3:
-                    image = image.reshape(-1)
-                label = re.search('^(.*?)[^a-zA-Z]',img).group(0)[:-1]
-                if len(label)==1:
-                    label = ord(label)
-                else:
-                    label = special_labels[label]
-
-                file.write(np.array2string(image,separator=',')+'\n')
-            break
     #logger = logging.getLogger(__name__)
     #logger.info('making final data set from raw data')
 
