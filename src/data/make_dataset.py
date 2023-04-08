@@ -2,7 +2,7 @@
 import click
 import logging
 from pathlib import Path
-from dotenv import find_dotenv, load_dotenv
+#from dotenv import find_dotenv, load_dotenv
 import os
 import matplotlib.pyplot as plt 
 import numpy as np
@@ -19,19 +19,34 @@ def main(input_filepath, output_filepath):
         cleaned data ready to be analyzed (saved in ../processed).
     """
     special_labels = {'space':0,'nothing':1,'del':2}
+    count = 0
+    #raw_data = np.empty(shape=(120001,))
 
     with zipfile.ZipFile(input_filepath) as z:
-        for filename in z.namelist():
+        for filename in tqdm(z.namelist()):
             if not os.path.isdir(filename):
                 with z.open(filename) as f:
+                    if '.jpg' not in filename or '__MACOSX' in filename:
+                        continue
+                    print(filename)
                     image = plt.imread(f)
                     if image.shape[2]==3:
-                        image = image.reshape(-1)
-                    label = filename.split('/')[1]
+                        image = image.reshape(-1)                    
+                    label = re.search('^(.*?)[^a-zA-Z]',filename.split('/')[1]).group(0)[:-1]
                     if len(label) == 1:
                         label = ord(label)
                     else:
                         label = special_labels[label]
+                    
+                    image = np.append(image,label)
+                    image = image.reshape(1, image.shape[0])
+                    count +=1
+                    np.savetxt(output_filepath+str(count)+'.csv',image,delimiter=',')
+                    #raw_data = np.vstack((raw_data,image))
+                    
+
+    #print(raw_data.shape)
+    #np.savetxt('raw_data.csv',raw_data,delimiter=',')
 
     #logger = logging.getLogger(__name__)
     #logger.info('making final data set from raw data')
