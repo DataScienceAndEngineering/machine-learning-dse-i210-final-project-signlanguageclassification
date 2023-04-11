@@ -31,7 +31,7 @@ Regardless of the headway made in communication through signing acknowledgment a
 
 **IV. Dataset & Features**
 
-data set link - https://www.kaggle.com/code/dansbecker/running-kaggle-kernels-with-a-gpu/input
+data set link - https://www.kaggle.com/datasets/datamunge/sign-language-mnist
 
 The dataset that will be used for this project exists on Kaggle and the Sign Language MNIST is presented here and follows the same CSV format with labels and pixel values in single rows. The American Sign Language letter database of hand gestures represent a multi-class problem with 24 classes of letters (excluding J and Z which require motion).
 The training data (27,455 instances) and test data (7172 cases) are around half the size of the standard MNIST but otherwise identical, with a header row of label, pixel1, pixel2,...pixel784 representing a single 28x28 pixel image with grayscale values ranging from 0-255.
