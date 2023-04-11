@@ -33,8 +33,8 @@ Regardless of the headway made in communication through signing acknowledgment a
 
 data set link - https://www.kaggle.com/code/dansbecker/running-kaggle-kernels-with-a-gpu/input
 
-The dataset that will be used for this project exists on Kaggle and contains images with 29 different signs in American Sign Language. These include 26 letters (A through Z) and the signs for space, delete and nothing.
-The development of a reliable and accurate sign language Interpreter system requires the extraction of appropriate features from the data and the use of appropriate machine learning algorithms to model the relationship between the features and the output labels.
+The dataset that will be used for this project exists on Kaggle and the Sign Language MNIST is presented here and follows the same CSV format with labels and pixel values in single rows. The American Sign Language letter database of hand gestures represent a multi-class problem with 24 classes of letters (excluding J and Z which require motion).
+The training data (27,455 instances) and test data (7172 cases) are around half the size of the standard MNIST but otherwise identical, with a header row of label, pixel1, pixel2,...pixel784 representing a single 28x28 pixel image with grayscale values ranging from 0-255.
 
 
 **V. Methodology**
