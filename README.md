@@ -1,7 +1,10 @@
-ConfigWithYourProjectName
+Sign Language Interpreter Project
 ==============================
-# DSEI210-S23-Final-Project
-Final Project for DSEI210-S23 Please fill in Description
+# Data Science Domains: Computer Vision, Classification Machine Learning
+
+# Introduction
+
+Effective communication is one of the most important aspects in society. However, for people who rely on sign language, communication with those unfamiliar with this communication method is a difficult task. A model that is able to take a video stream from a camera as an input, and then output the letters that are being signed can be an invaluable tool. This model could be deployed to places like hospitals, schools, and government offices to help facilitate communication so that it does not represent a significant barrier.
 
 Project Organization
 ------------
