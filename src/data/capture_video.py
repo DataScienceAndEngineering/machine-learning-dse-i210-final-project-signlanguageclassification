@@ -51,21 +51,49 @@ def get_cropped_image(img,x1,y1,x2,y2):
     constant = 200
     #find the center of the rectangle
     x, y = int((x2+x1)/2),int((y2+y1)/2)
+    #define slice bounds
+    y_l = y-constant 
+    y_u = y+constant 
+    x_l = x-constant 
+    x_u = x+constant 
     #try to slice the numpy array 
     try:
-        cropped_image = img[y-constant:y+constant,x-constant:x+constant]
-    #if IndexError since hand is far off the center of the camera view, set cropped image to none
+        cropped_image = img[y_l:y_u,x_l:x_u]
+        #only return an image if it has a square resolution shape 
+        if cropped_image.shape[0]!=cropped_image.shape[1]:
+            cropped_image = None 
+    #catching index errors when slicing 
     except IndexError:
         cropped_image = None
+        print('Index Error')
     #return the cropped image 
     return cropped_image
+
+#function for preprocessing image from video to conform to model input requirements 
+def img_preprocessing(img,resolution):
+    #convert color of image to grayscale 
+    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+    #convert resolution of image 
+    img = cv.resize(img,resolution)
+    return img
 
 
 
 #main function call 
 def main():
+    #CONSTANTS 
+    #define resolution constant for image preprocessing 
+    res = (28,28)
+    #define delay to get image from video feed every number of frames
+    interval = 1
+
     #define video capture from camera feed 
     cap = cv.VideoCapture(0)
+    #fps of video feed
+    fps = int(cap.get(cv.CAP_PROP_FPS))
+    #frame count
+    frame_count = 0 
+
     #check if video is unable to be obtained, and print message 
     if cap.isOpened() == False:
         print('Error opening video stream')
@@ -87,9 +115,14 @@ def main():
                 #get cropped image for model input if possible 
                 cropped_img = get_cropped_image(frame,x1,y1,x2,y2)
 
-                #TEMPORARY IMSHOW FOR PROOF OF CONCEPT AND DEBUGGING#
+                #if cropped image is found 
                 if cropped_img is not None:
-                    cv.imshow('Cropped Image',cropped_img)
+                    #increment frame count 
+                    frame_count+=1
+                    #logic for getting image every interval
+                    if frame_count % (fps * interval) == 0:
+                        #REPLACE CODE WITH IMREAD AND PASS INTO MODEL 
+                        cv.imshow('Cropped Image',img_preprocessing(cropped_img,res))
 
                 #draw rectangular bound in frame if found 
                 cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
