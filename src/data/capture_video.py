@@ -86,6 +86,8 @@ def main():
     res = (28,28)
     #define delay to get image from video feed every number of frames
     interval = 1
+    #laplacian filter variance threshold 
+    lap_thres = 60
 
     #define video capture from camera feed 
     cap = cv.VideoCapture(0)
@@ -121,8 +123,11 @@ def main():
                     frame_count+=1
                     #logic for getting image every interval
                     if frame_count % (fps * interval) == 0:
-                        #REPLACE CODE WITH IMREAD AND PASS INTO MODEL 
-                        cv.imshow('Cropped Image',img_preprocessing(cropped_img,res))
+                        #define laplacian filter to detect image if image is blurry (high variance = sharper image)
+                        laplacian = cv.Laplacian(frame, cv.CV_64F).var()
+                        if laplacian > lap_thres:
+                            #REPLACE CODE WITH IMREAD AND PASS INTO MODEL 
+                            cv.imshow('Cropped Image',img_preprocessing(cropped_img,res))
 
                 #draw rectangular bound in frame if found 
                 cv.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
