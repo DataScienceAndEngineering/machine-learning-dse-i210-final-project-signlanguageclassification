@@ -41,7 +41,7 @@ def main(output_filepath):
     logging.basicConfig(level = logging.INFO)
 
     #create temp directory for holding contents of kaggle dataset 
-    new_path = output_filepath+'/temp_folder'
+    new_path = os.path.join(output_filepath,'temp_folder')
     if not os.path.exists(new_path):
         os.mkdir(new_path)
         logging.info('Temp folder created for data')
@@ -98,7 +98,7 @@ def main(output_filepath):
     combined_augmented_data = (X_train_combined,y_train_combined,X_test_combined,y_test_combined)
 
     #pickling 
-    with open(output_filepath+'/combined_augmented_data_v2_TEST.pkl','wb') as f:
+    with open(os.path.join(output_filepath,'combined_augmented_data_v2.pkl'),'wb') as f:
         pickle.dump(combined_augmented_data, f)
         logging.info('Pickle of original image dataset and augmented dataset dumped into %s',output_filepath)
 
