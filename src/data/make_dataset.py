@@ -6,7 +6,7 @@ import numpy as np
 import pickle 
 import tensorflow as tf 
 import logging 
-import shutil
+import tempfile
 
 #function for finding file
 def find_file(name,path):
@@ -39,75 +39,68 @@ def main(output_filepath):
 
     #setting level to info to display logging messages
     logging.basicConfig(level = logging.INFO)
-
-    #create temp directory for holding contents of kaggle dataset 
-    new_path = os.path.join(output_filepath,'temp_folder')
-    if not os.path.exists(new_path):
-        os.mkdir(new_path)
-        logging.info('Temp folder created for data')
-    else:
-        raise Exception('')
-
+        
     #authenticate kaggle account 
     kaggle.api.authenticate()
-    #download kaggle dataset, and temporarily drop into folder 
-    kaggle.api.dataset_download_files('datamunge/sign-language-mnist',path=new_path,unzip=True)
-    logging.info('Kaggle data downloaded into temp folder')
+
+    #create temp directory to hold downloaded data while computations finish, then release
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        #temp folder created 
+        logging.info('Temp folder created at %s',tmp_dir)
+
+        #download kaggle dataset, and temporarily drop into folder 
+        kaggle.api.dataset_download_files('datamunge/sign-language-mnist',path=tmp_dir,unzip=True)
+        logging.info('Kaggle data downloaded into temp folder')
     
-    #find train and test files 
-    train_path = find_file('sign_mnist_train.csv',new_path)
-    test_path = find_file('sign_mnist_test.csv',new_path)
+        #find train and test files 
+        train_path = find_file('sign_mnist_train.csv',tmp_dir)
+        test_path = find_file('sign_mnist_test.csv',tmp_dir)
 
-    #load csv data of images into numpy arrays 
-    train = np.loadtxt(train_path, delimiter=',', skiprows=1)
-    test = np.loadtxt(test_path, delimiter=',', skiprows=1)
+        #load csv data of images into numpy arrays 
+        train = np.loadtxt(train_path, delimiter=',', skiprows=1)
+        test = np.loadtxt(test_path, delimiter=',', skiprows=1)
 
-    #split X and y data
-    #training data
-    X_train = train[:,1:]
-    X_train = X_train.reshape(X_train.shape[0], res[0], res[1], 1)
-    y_train = train[:,0]
+        #split X and y data
+        #training data
+        X_train = train[:,1:]
+        X_train = X_train.reshape(X_train.shape[0], res[0], res[1], 1)
+        y_train = train[:,0]
 
-    #testing data 
-    X_test = test[:,1:]
-    X_test = X_test.reshape(X_test.shape[0], res[0], res[1], 1)
-    y_test = test[:,0]
+        #testing data 
+        X_test = test[:,1:]
+        X_test = X_test.reshape(X_test.shape[0], res[0], res[1], 1)
+        y_test = test[:,0]
 
-    #create ImageDataGenerator object with defined data augmentation parameters
-    datagen = tf.keras.preprocessing.image.ImageDataGenerator(rotation_range=10,zoom_range=0.1,width_shift_range=0.1,height_shift_range=0.1,shear_range=0.1,brightness_range=[0.5, 1.5],fill_mode='nearest')
+        #create ImageDataGenerator object with defined data augmentation parameters
+        datagen = tf.keras.preprocessing.image.ImageDataGenerator(rotation_range=10,zoom_range=0.1,width_shift_range=0.1,height_shift_range=0.1,shear_range=0.1,brightness_range=[0.5, 1.5],fill_mode='nearest')
 
-    # Apply data augmentation to the training set
-    logging.info('Augmentation in progress')
-    X_train_augmented, y_train_augmented = data_aug(datagen,X_train,y_train)
+        # Apply data augmentation to the training set
+        logging.info('Augmentation in progress')
+        X_train_augmented, y_train_augmented = data_aug(datagen,X_train,y_train)
 
-    # Apply data augmentation to the test set
-    X_test_augmented, y_test_augmented = data_aug(datagen,X_test,y_test)
+        # Apply data augmentation to the test set
+        X_test_augmented, y_test_augmented = data_aug(datagen,X_test,y_test)
 
-    #reshaping the original numpy arrays to combine with augmented data 
-    X_train = X_train.reshape(X_train.shape[0],res[0],res[1])
-    X_test = X_test.reshape(X_test.shape[0],res[0],res[1])
+        #reshaping the original numpy arrays to combine with augmented data 
+        X_train = X_train.reshape(X_train.shape[0],res[0],res[1])
+        X_test = X_test.reshape(X_test.shape[0],res[0],res[1])
 
-    #concatenate the arrays along the first axis (row-wise)
-    X_train_combined = np.concatenate((X_train_augmented, X_train), axis=0)
-    y_train_combined = np.concatenate((y_train_augmented, y_train), axis=0)
+        #concatenate the arrays along the first axis (row-wise)
+        X_train_combined = np.concatenate((X_train_augmented, X_train), axis=0)
+        y_train_combined = np.concatenate((y_train_augmented, y_train), axis=0)
 
-    X_test_combined = np.concatenate((X_test_augmented, X_test), axis=0)
-    y_test_combined = np.concatenate((y_test_augmented, y_test), axis=0)
+        X_test_combined = np.concatenate((X_test_augmented, X_test), axis=0)
+        y_test_combined = np.concatenate((y_test_augmented, y_test), axis=0)
 
-    #add combined datasets to tuple in preparation for pickling 
-    combined_augmented_data = (X_train_combined,y_train_combined,X_test_combined,y_test_combined)
+        #add combined datasets to tuple in preparation for pickling 
+        combined_augmented_data = (X_train_combined,y_train_combined,X_test_combined,y_test_combined)
 
-    #pickling 
-    with open(os.path.join(output_filepath,'combined_augmented_data_v2.pkl'),'wb') as f:
-        pickle.dump(combined_augmented_data, f)
-        logging.info('Pickle of original image dataset and augmented dataset dumped into %s',output_filepath)
+        #pickling 
+        with open(os.path.join(output_filepath,'combined_augmented_data_v2.pkl'),'wb') as f:
+            pickle.dump(combined_augmented_data, f)
+            logging.info('Pickle of original image dataset and augmented dataset dumped into %s',output_filepath)
 
-    #deleting temp folder 
-    shutil.rmtree(new_path)
-    if not os.path.exists(new_path):
-        logging.info('Temp folder deleted.')
-
-        
+#entry 
 if __name__ == '__main__':
 
     main()
