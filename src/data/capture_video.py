@@ -1,7 +1,8 @@
 #import libraries
 import cv2 as cv
 import mediapipe as mp
-
+import logging
+from sklearn.pipeline import Pipeline
 # function for detecting the hand
 
 
@@ -83,7 +84,7 @@ def img_preprocessing(img, resolution):
 
 
 # main function call
-def main():
+def sign_interpreter(model):
     # CONSTANTS
     # define resolution constant for image preprocessing
     res = (28, 28)
@@ -93,6 +94,8 @@ def main():
     lap_thres = 60
     # constant for rectangle spacing
     rect_space = 100
+    # setting level to info to display logging messages
+    logging.basicConfig(level=logging.DEBUG)
 
     # define video capture from camera feed
     cap = cv.VideoCapture(0)
@@ -131,9 +134,11 @@ def main():
                         # define laplacian filter to detect image if image is blurry (high variance = sharper image)
                         laplacian = cv.Laplacian(frame, cv.CV_64F).var()
                         if laplacian > lap_thres:
+                            logging.debug('laplacian %s', laplacian)
                             # REPLACE CODE WITH IMREAD AND PASS INTO MODEL
-                            cv.imshow('Cropped Image',
-                                      img_preprocessing(cropped_img, res))
+                            img = img_preprocessing(cropped_img, res)
+                            cv.imshow('Cropped Image', img)
+                            print(model.transform(img.reshape(1, -1)))
 
                 # draw rectangular bound in frame if found
                 cv.rectangle(frame, (x1-rect_space, y1-rect_space),
@@ -156,4 +161,4 @@ def main():
 
 # entry
 if __name__ == '__main__':
-    main()
+    sign_interpreter()
