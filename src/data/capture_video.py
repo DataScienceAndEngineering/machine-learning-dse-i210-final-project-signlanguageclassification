@@ -2,7 +2,7 @@
 import cv2 as cv
 import mediapipe as mp
 import logging
-from sklearn.pipeline import Pipeline
+import numpy as np
 # function for detecting the hand
 
 
@@ -55,7 +55,7 @@ def find_rectangle(img, results):
 
 def get_cropped_image(img, x1, y1, x2, y2):
     # constant to add to build a square
-    constant = 20
+    constant = 50
     # #define slice bounds
     y_l = y1-constant
     y_u = y2+constant
@@ -75,11 +75,18 @@ def get_cropped_image(img, x1, y1, x2, y2):
 # function for preprocessing image from video to conform to model input requirements
 
 
-def img_preprocessing(img, resolution):
+def img_preprocessing(img, resolution, type_str):
     # convert color of image to grayscale
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     # convert resolution of image
     img = cv.resize(img, resolution)
+    #extra preprocessing depending on model type
+    if 'keras' in type_str:
+        img = img.reshape((1,) + resolution + (1,))
+    elif type_str == 'debug':
+        pass
+    else:
+        img = img.reshape(1,-1)
     return img
 
 
@@ -91,7 +98,7 @@ def sign_interpreter(model):
     # define delay to get image from video feed every number of frames
     interval = 1
     # laplacian filter variance threshold
-    lap_thres = 60
+    lap_thres = 35
     # constant for rectangle spacing
     rect_space = 100
     # setting level to info to display logging messages
@@ -133,12 +140,20 @@ def sign_interpreter(model):
                     if frame_count % (fps * interval) == 0:
                         # define laplacian filter to detect image if image is blurry (high variance = sharper image)
                         laplacian = cv.Laplacian(frame, cv.CV_64F).var()
+                        logging.debug('laplacian %s', laplacian)
                         if laplacian > lap_thres:
-                            logging.debug('laplacian %s', laplacian)
                             # REPLACE CODE WITH IMREAD AND PASS INTO MODEL
-                            img = img_preprocessing(cropped_img, res)
-                            cv.imshow('Cropped Image', img)
-                            print(model.transform(img.reshape(1, -1)))
+                            img = img_preprocessing(cropped_img, res, str(type(model)))
+                            debug_img = img_preprocessing(cropped_img, res, 'debug')
+                            cv.imshow('Cropped Image', debug_img)
+                            #TEMP TESTING CODE 
+                            predictions = model.predict(img)
+                            print(predictions)
+                            index = np.argmax(predictions)
+                            print(index)
+                            letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'O', 'P', 'Q',
+                                       'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y']
+                            print(letters[index])
 
                 # draw rectangular bound in frame if found
                 cv.rectangle(frame, (x1-rect_space, y1-rect_space),
