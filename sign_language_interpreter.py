@@ -2,6 +2,7 @@
 from src.data import capture_video
 from src.features import features_pipeline
 from sklearn.pipeline import Pipeline
+from src.models import get_models
 import cv2 as cv
 import numpy as np
 import click
@@ -14,7 +15,8 @@ def main(model):
 
     if model == 'NN':
         print('running code for neural network')
-        capture_video.sign_interpreter()
+        nn = get_models.get_NN()
+        capture_video.sign_interpreter(nn)
 
     else:
         print('running code for second best model')
