@@ -132,9 +132,8 @@ def sign_interpreter(model):
             if x1 and y1 and x2 and y2:
                 # get cropped image for model input if possible
                 cropped_img = get_cropped_image(frame, x1, y1, x2, y2)
-
                 # if cropped image is found
-                if cropped_img is not None:
+                if (cropped_img.shape[0] != 0) and cropped_img is not None:
                     # increment frame count
                     frame_count += 1
                     # logic for getting image every interval
