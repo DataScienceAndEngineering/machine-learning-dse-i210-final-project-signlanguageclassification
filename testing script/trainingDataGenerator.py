@@ -95,7 +95,7 @@ def img_preprocessing(img, resolution):
 def main():
 
     label= 'A'
-    path = "./newTrainingData/"+ label + "/"
+    path = "../data/external/newTrainingData/"+ label + "/"
     if not os.path.exists(path):
         os.makedirs(path)
         print(f"Directory '{path}' created successfully")
