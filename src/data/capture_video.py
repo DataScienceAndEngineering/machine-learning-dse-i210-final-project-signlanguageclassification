@@ -6,15 +6,11 @@ import numpy as np
 # function for detecting the hand
 
 
-def findHand(img):
-    # define mediapipe hands model
-    mpHands = mp.solutions.hands
-    # hands object to detect and track hands
-    hands = mpHands.Hands()
+def findHand(img,mp_model):
     # convert image to grayscale as preprocessing step
     g_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
     # return detected hands
-    return hands.process(g_img)
+    return mp_model.process(g_img)
 
 # function for finding the rectangular bound of the hand detected
 
@@ -54,8 +50,9 @@ def find_rectangle(img, results):
 
 
 def get_cropped_image(img, x1, y1, x2, y2):
+    
     # constant to add to build a square
-    constant = 50
+    constant = 150
     # #define slice bounds
     y_l = y1-constant
     y_u = y2+constant
@@ -98,7 +95,7 @@ def sign_interpreter(model):
     # define delay to get image from video feed every number of frames
     interval = 1
     # laplacian filter variance threshold
-    lap_thres = 35
+    lap_thres = 20
     # constant for rectangle spacing
     rect_space = 100
     # setting level to info to display logging messages
@@ -110,6 +107,10 @@ def sign_interpreter(model):
     fps = int(cap.get(cv.CAP_PROP_FPS))
     # frame count
     frame_count = 0
+    # define mediapipe hands model
+    mpHands = mp.solutions.hands
+    # hands object to detect and track hands
+    hands = mpHands.Hands()
 
     # check if video is unable to be obtained, and print message
     if cap.isOpened() == False:
@@ -123,12 +124,12 @@ def sign_interpreter(model):
 
         if ret == True:
             # detect hands
-            detection_results = findHand(frame)
+            detection_results = findHand(frame,hands)
             # find rectangular bound around detected hand
             x1, y1, x2, y2 = find_rectangle(frame, detection_results)
 
             # if bound is found
-            if x1:
+            if x1 and y1 and x2 and y2:
                 # get cropped image for model input if possible
                 cropped_img = get_cropped_image(frame, x1, y1, x2, y2)
 
@@ -139,7 +140,7 @@ def sign_interpreter(model):
                     # logic for getting image every interval
                     if frame_count % (fps * interval) == 0:
                         # define laplacian filter to detect image if image is blurry (high variance = sharper image)
-                        laplacian = cv.Laplacian(frame, cv.CV_64F).var()
+                        laplacian = cv.Laplacian(cropped_img, cv.CV_64F).var()
                         logging.debug('laplacian %s', laplacian)
                         if laplacian > lap_thres:
                             # REPLACE CODE WITH IMREAD AND PASS INTO MODEL
