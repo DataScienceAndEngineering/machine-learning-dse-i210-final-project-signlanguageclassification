@@ -7,6 +7,7 @@ import pickle
 import tensorflow as tf 
 import logging 
 import tempfile
+from sklearn.utils import shuffle
 
 #function for finding file
 def find_file(name,path):
@@ -92,11 +93,15 @@ def main(output_filepath):
         X_test_combined = np.concatenate((X_test_augmented, X_test), axis=0)
         y_test_combined = np.concatenate((y_test_augmented, y_test), axis=0)
 
+        #shuffling data
+        X_train_combined, y_train_combined = shuffle(X_train_combined,y_train_combined,random_state=99)
+        X_test_combined, y_test_combined = shuffle(X_test_combined,y_test_combined,random_state=99)
+
         #add combined datasets to tuple in preparation for pickling 
         combined_augmented_data = (X_train_combined,y_train_combined,X_test_combined,y_test_combined)
 
         #pickling 
-        with open(os.path.join(output_filepath,'combined_augmented_data_v2.pkl'),'wb') as f:
+        with open(os.path.join(output_filepath,'combined_augmented_data_v3.pkl'),'wb') as f:
             pickle.dump(combined_augmented_data, f)
             logging.info('Pickle of original image dataset and augmented dataset dumped into %s',output_filepath)
 
