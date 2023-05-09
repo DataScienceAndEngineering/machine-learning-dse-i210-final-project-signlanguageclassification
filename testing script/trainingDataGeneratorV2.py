@@ -51,6 +51,8 @@ def find_rectangle(img, results):
 
 # function for getting a square image as input to the sign language interpreter model
 def get_cropped_image(img, x1, y1, x2, y2):
+    # define resolution constant for image preprocessing
+    res = (28, 28)
     # constant to add to build a square
     constant = 200
     # find the center of the rectangle
@@ -66,11 +68,15 @@ def get_cropped_image(img, x1, y1, x2, y2):
         # only return an image if it has a square resolution shape
         if cropped_image.shape[0] != cropped_image.shape[1]:
             cropped_image = None
+        else:
+            cropped_image = cv.resize(cropped_image, res)
     # catching index errors when slicing
     except IndexError:
         cropped_image = None
         print('Index Error')
     # return the cropped image
+    # resize the cropped image to 28x28 pixels
+
     return cropped_image
 
 
@@ -94,12 +100,11 @@ def main():
         print(f"Directory '{path}' already exists")
 
     # CONSTANTS
-    # define resolution constant for image preprocessing
-    res = (28, 28)
+
     # define delay to get image from video feed every number of frames
-    interval = 0.5
+    interval = 0.1
     # laplacian filter variance threshold
-    lap_thres = 30
+    lap_thres = 50
 
     # define video capture from camera feed
     cap = cv.VideoCapture(0)
@@ -128,6 +133,7 @@ def main():
             if x1:
                 # get cropped image for model input if possible
                 cropped_img = get_cropped_image(frame, x1, y1, x2, y2)
+                # crop28x28 = cropped_img.resize((28, 28))
 
                 # if cropped image is found
                 if cropped_img is not None:
