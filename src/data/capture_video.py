@@ -77,6 +77,11 @@ def img_preprocessing(img, resolution, type_str):
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     # convert resolution of image
     img = cv.resize(img, resolution)
+    #sharpening
+    kernel = np.array([[0, -.7, 0],
+                   [-.7, 4,-.7],
+                   [0, -.7, 0]])
+    img = cv.filter2D(src=img, ddepth=-1,kernel=kernel)
     #extra preprocessing depending on model type
     if 'keras' in type_str:
         img = img.reshape((1,) + resolution + (1,))
