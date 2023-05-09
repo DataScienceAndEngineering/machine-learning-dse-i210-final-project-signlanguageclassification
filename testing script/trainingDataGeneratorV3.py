@@ -7,19 +7,23 @@ import os
 # function for detecting the hand
 
 
-def findHand(img,mp_model):
+def findHand(img, mp_model):
     # convert image to grayscale as preprocessing step
     g_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
     # return detected hands
     return mp_model.process(g_img)
+    return mp_model.process(g_img)
 
 # function for finding the rectangular bound of the hand detected
+
+
 
 
 def find_rectangle(img, results):
     # use the height and width of the img as a starting point for the x_min, y_min
     h, w, c = img.shape
     # constant to increase the size of the box
+    constant = 0
     constant = 0
     # check if hand is detected via landmarks
     if results.multi_hand_landmarks:
@@ -50,15 +54,16 @@ def find_rectangle(img, results):
 # function for getting a square image as input to the sign language interpreter model
 
 
+
+
 def get_cropped_image(img, x1, y1, x2, y2):
-    
     # constant to add to build a square
     constant = 150
     # #define slice bounds
-    y_l = y1-constant
-    y_u = y2+constant
-    x_l = x1-constant
-    x_u = x2+constant
+    y_l = y1 - constant
+    y_u = y2 + constant
+    x_l = x1 - constant
+    x_u = x2 + constant
 
     # cropping image
     try:
@@ -74,6 +79,9 @@ def get_cropped_image(img, x1, y1, x2, y2):
 
 
 def img_preprocessing(img, resolution, type_str):
+
+
+def img_preprocessing(img, resolution, type_str):
     # convert color of image to grayscale
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     # convert resolution of image
@@ -83,8 +91,8 @@ def img_preprocessing(img, resolution, type_str):
 
 # main function call
 def sign_interpreter():
-
     label = 'A'
+    path = "../data/external/newTrainingData/" + label + "/"
     path = "../data/external/newTrainingData/" + label + "/"
     if not os.path.exists(path):
         os.makedirs(path)
@@ -95,9 +103,17 @@ def sign_interpreter():
     # CONSTANTS
     # define resolution constant for image preprocessing
     res = (28, 28)
+    # define resolution constant for image preprocessing
+    res = (28, 28)
     # define delay to get image from video feed every number of frames
     interval = .5
+    interval = .5
     # laplacian filter variance threshold
+    lap_thres = 20
+    # constant for rectangle spacing
+    rect_space = 100
+    # setting level to info to display logging messages
+    logging.basicConfig(level=logging.DEBUG)
     lap_thres = 20
     # constant for rectangle spacing
     rect_space = 100
@@ -114,10 +130,15 @@ def sign_interpreter():
     mpHands = mp.solutions.hands
     # hands object to detect and track hands
     hands = mpHands.Hands()
+    # define mediapipe hands model
+    mpHands = mp.solutions.hands
+    # hands object to detect and track hands
+    hands = mpHands.Hands()
 
     # check if video is unable to be obtained, and print message
     if cap.isOpened() == False:
         print('Error opening video stream')
+    count= 1
 
     # while video is being captured
     while (cap.isOpened()):
@@ -127,15 +148,17 @@ def sign_interpreter():
 
         if ret == True:
             # detect hands
-            detection_results = findHand(frame,hands)
+            detection_results = findHand(frame, hands)
             # find rectangular bound around detected hand
             x1, y1, x2, y2 = find_rectangle(frame, detection_results)
 
             # if bound is found
             if x1 and y1 and x2 and y2:
+            if x1 and y1 and x2 and y2:
                 # get cropped image for model input if possible
                 cropped_img = get_cropped_image(frame, x1, y1, x2, y2)
                 # if cropped image is found
+                if (cropped_img.shape[0] != 0) and cropped_img is not None:
                 if (cropped_img.shape[0] != 0) and cropped_img is not None:
                     # increment frame count
                     frame_count += 1
@@ -144,14 +167,18 @@ def sign_interpreter():
                         # define laplacian filter to detect image if image is blurry (high variance = sharper image)
                         laplacian = cv.Laplacian(cropped_img, cv.CV_64F).var()
                         logging.debug('laplacian %s', laplacian)
+                        laplacian = cv.Laplacian(cropped_img, cv.CV_64F).var()
+                        logging.debug('laplacian %s', laplacian)
                         if laplacian > lap_thres:
-                            filename = "cropped_image_{}.jpg".format(frame_count)
+                            filename = "cropped_image_{}.jpg".format(count)
+
                             cv.imwrite(path + filename, cropped_img)
+                            count +=1
                             print("File saved ", filename)
 
                 # draw rectangular bound in frame if found
-                cv.rectangle(frame, (x1-rect_space, y1-rect_space),
-                             (x2+rect_space, y2+rect_space), (0, 255, 0), 2)
+                cv.rectangle(frame, (x1 - rect_space, y1 - rect_space),
+                             (x2 + rect_space, y2 + rect_space), (0, 255, 0), 2)
 
             # launch window and display
             cv.imshow('Sign Language Interpreter', frame)
