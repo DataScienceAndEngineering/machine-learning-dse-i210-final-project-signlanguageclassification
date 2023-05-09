@@ -85,7 +85,7 @@ def img_preprocessing(img, resolution, type_str):
 def sign_interpreter():
 
     label = 'A'
-    path = "./newTrainingData/" + label + "/"
+    path = "../data/external/newTrainingData/" + label + "/"
     if not os.path.exists(path):
         os.makedirs(path)
         print(f"Directory '{path}' created successfully")
