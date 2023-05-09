@@ -104,7 +104,7 @@ def main():
     # define delay to get image from video feed every number of frames
     interval = 0.1
     # laplacian filter variance threshold
-    lap_thres = 50
+    lap_thres = 60
 
     # define video capture from camera feed
     cap = cv.VideoCapture(0)
