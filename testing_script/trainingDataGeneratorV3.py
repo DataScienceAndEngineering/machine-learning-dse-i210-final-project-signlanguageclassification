@@ -87,7 +87,7 @@ def img_preprocessing(img, resolution, type_str):
 
 # main function call
 def sign_interpreter():
-    label = 'A'
+    label = 'P'
     path = "../data/external/newTrainingData/" + label + "/"
     if not os.path.exists(path):
         os.makedirs(path)
@@ -99,9 +99,9 @@ def sign_interpreter():
     # define resolution constant for image preprocessing
     res = (28, 28)
     # define delay to get image from video feed every number of frames
-    interval = .5
+    interval = .2
     # laplacian filter variance threshold
-    lap_thres = 20
+    lap_thres = 15
     # constant for rectangle spacing
     rect_space = 100
     # setting level to info to display logging messages
@@ -121,7 +121,7 @@ def sign_interpreter():
     # check if video is unable to be obtained, and print message
     if cap.isOpened() == False:
         print('Error opening video stream')
-    count= 1
+    count= 45
 
     # while video is being captured
     while (cap.isOpened()):
@@ -146,12 +146,13 @@ def sign_interpreter():
                     # logic for getting image every interval
                     if frame_count % (fps * interval) == 0:
                         # define laplacian filter to detect image if image is blurry (high variance = sharper image)
-                        laplacian = cv.Laplacian(cropped_img, cv.CV_64F).var()
+                        #laplacian = cv.Laplacian(cropped_img, cv.CV_64F).var()
+                        laplacian = 25
                         logging.debug('laplacian %s', laplacian)
                         if laplacian > lap_thres:
                             filename = "cropped_image_{}.jpg".format(count)
-
-                            cv.imwrite(path + filename, cropped_img)
+                            img = img_preprocessing(cropped_img,res,'test')
+                            cv.imwrite(path + filename, img)
                             count +=1
                             print("File saved ", filename)
 
