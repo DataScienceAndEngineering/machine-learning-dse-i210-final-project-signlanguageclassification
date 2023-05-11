@@ -4,5 +4,5 @@ import tensorflow as tf
 
 #function to load trained neural network
 def get_NN():
-    return tf.keras.models.load_model('models/finalModel_V2.h5')
+    return tf.keras.models.load_model('models/nn_combined_original_livecamera.h5')
     

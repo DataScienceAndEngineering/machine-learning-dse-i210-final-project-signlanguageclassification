@@ -78,10 +78,10 @@ def img_preprocessing(img, resolution, type_str):
     # convert resolution of image
     img = cv.resize(img, resolution)
     #sharpening
-    kernel = np.array([[0, -.7, 0],
-                   [-.7, 4,-.7],
-                   [0, -.7, 0]])
-    img = cv.filter2D(src=img, ddepth=-1,kernel=kernel)
+    # kernel = np.array([[0, -.7, 0],
+    #                [-.7, 4,-.7],
+    #                [0, -.7, 0]])
+    # img = cv.filter2D(src=img, ddepth=-1,kernel=kernel)
     #extra preprocessing depending on model type
     if 'keras' in type_str:
         img = img.reshape((1,) + resolution + (1,))
@@ -100,7 +100,7 @@ def sign_interpreter(model):
     # define delay to get image from video feed every number of frames
     interval = 1
     # laplacian filter variance threshold
-    lap_thres = 20
+    lap_thres = 0
     # constant for rectangle spacing
     rect_space = 100
     # setting level to info to display logging messages
@@ -144,7 +144,8 @@ def sign_interpreter(model):
                     # logic for getting image every interval
                     if frame_count % (fps * interval) == 0:
                         # define laplacian filter to detect image if image is blurry (high variance = sharper image)
-                        laplacian = cv.Laplacian(cropped_img, cv.CV_64F).var()
+                        #laplacian = cv.Laplacian(cropped_img, cv.CV_64F).var()
+                        laplacian = 1
                         logging.debug('laplacian %s', laplacian)
                         if laplacian > lap_thres:
                             # REPLACE CODE WITH IMREAD AND PASS INTO MODEL
