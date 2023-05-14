@@ -1,5 +1,6 @@
 # External Data should not be committed to the repository
 data/external/*
+venv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
