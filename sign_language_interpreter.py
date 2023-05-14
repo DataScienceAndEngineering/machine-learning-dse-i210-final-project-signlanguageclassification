@@ -12,14 +12,14 @@ import click
 @click.option('--model', type=click.Choice(['NN-224x244', 'NN-28x28', 'PLACEHOLDER']), default='NN', required=True)
 # main entry for sign_language_interpreter functionality
 def main(model):
-
     if model == 'NN-224x244':
         print('running code for neural network')
-        nn = get_models.get_NN()
-        capture_video.sign_interpreter(nn)
+        nn = get_models.get_NN224x224()
+        capture_video.sign_interpreter(nn, model)
     elif model == 'NN-28x28':
-        nn = get_models.get_NN()
-        
+        nn = get_models.get_NN28x28()
+        capture_video.sign_interpreter(nn, model)
+
     else:
         print('running code for second best model')
         pipeline = Pipeline(

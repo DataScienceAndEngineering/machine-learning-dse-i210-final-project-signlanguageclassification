@@ -1,23 +1,27 @@
-#import libraries
+# import libraries
 import cv2 as cv
 import mediapipe as mp
 import logging
 import numpy as np
 import os
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import cv2
 from cvzone.HandTrackingModule import HandDetector
 from cvzone.ClassificationModule import Classifier
 import math
+
+
 # function for detecting the hand
 
 
-def findHand(img,mp_model):
+def findHand(img, mp_model):
     # convert image to grayscale as preprocessing step
     g_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
     # return detected hands
     return mp_model.process(g_img)
+
 
 # function for finding the rectangular bound of the hand detected
 
@@ -53,18 +57,18 @@ def find_rectangle(img, results):
     else:
         return None, None, None, None
 
+
 # function for getting a square image as input to the sign language interpreter model
 
 
 def get_cropped_image(img, x1, y1, x2, y2):
-    
     # constant to add to build a square
     constant = 150
     # #define slice bounds
-    y_l = y1-constant
-    y_u = y2+constant
-    x_l = x1-constant
-    x_u = x2+constant
+    y_l = y1 - constant
+    y_u = y2 + constant
+    x_l = x1 - constant
+    x_u = x2 + constant
 
     # cropping image
     try:
@@ -76,6 +80,7 @@ def get_cropped_image(img, x1, y1, x2, y2):
     # return the cropped image
     return cropped_image
 
+
 # function for preprocessing image from video to conform to model input requirements
 
 
@@ -84,24 +89,23 @@ def img_preprocessing(img, resolution, type_str):
     img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     # convert resolution of image
     img = cv.resize(img, resolution)
-    #sharpening
+    # sharpening
     # kernel = np.array([[0, -.7, 0],
     #                [-.7, 4,-.7],
     #                [0, -.7, 0]])
     # img = cv.filter2D(src=img, ddepth=-1,kernel=kernel)
-    #extra preprocessing depending on model type
+    # extra preprocessing depending on model type
     if 'keras' in type_str:
         img = img.reshape((1,) + resolution + (1,))
     elif type_str == 'debug':
         pass
     else:
-        img = img.reshape(1,-1)
+        img = img.reshape(1, -1)
     return img
 
 
 # main function call
-def sign_interpreter(model):
-
+def sign_interpreter(model, model_type):
     # CONSTANTS
     # define resolution constant for image preprocessing
     res = (28, 28)
@@ -124,7 +128,7 @@ def sign_interpreter(model):
     # frame count
     frame_count = 0
 
-    if model == 'nn28x28':
+    if model_type == 'NN-28x28':
         # define mediapipe hands model
         mpHands = mp.solutions.hands
         # hands object to detect and track hands
@@ -142,7 +146,7 @@ def sign_interpreter(model):
 
             if ret == True:
                 # detect hands
-                detection_results = findHand(frame,hands)
+                detection_results = findHand(frame, hands)
                 # find rectangular bound around detected hand
                 x1, y1, x2, y2 = find_rectangle(frame, detection_results)
 
@@ -164,7 +168,7 @@ def sign_interpreter(model):
                                 img = img_preprocessing(cropped_img, res, str(type(model)))
                                 debug_img = img_preprocessing(cropped_img, res, 'debug')
                                 cv.imshow('Cropped Image', debug_img)
-                                #TEMP TESTING CODE
+                                # TEMP TESTING CODE
                                 predictions = model.predict(img)
                                 print(predictions)
                                 index = np.argmax(predictions)
@@ -173,8 +177,8 @@ def sign_interpreter(model):
                                 print(letters[index])
 
                     # draw rectangular bound in frame if found
-                    cv.rectangle(frame, (x1-rect_space, y1-rect_space),
-                                 (x2+rect_space, y2+rect_space), (0, 255, 0), 2)
+                    cv.rectangle(frame, (x1 - rect_space, y1 - rect_space),
+                                 (x2 + rect_space, y2 + rect_space), (0, 255, 0), 2)
 
                 # launch window and display
                 cv.imshow('Sign Language Interpreter', frame)
@@ -196,11 +200,10 @@ def sign_interpreter(model):
 
         # cap = cv2.VideoCapture()
         detector = HandDetector(maxHands=1)
-        classifier = Classifier(r"D:\DataScience_Assigment\SignLanguageProject\New Project\machine-learning-dse-i210-final-project-signlanguageclassification\data\external\my_cnn_model_updated.h5", r"D:\DataScience_Assigment\SignLanguageProject\New Project\machine-learning-dse-i210-final-project-signlanguageclassification\data\external\labels.txt")
+        # classifier = Classifier(r"D:\DataScience_Assigment\SignLanguageProject\New Project\machine-learning-dse-i210-final-project-signlanguageclassification\data\external\my_cnn_model_updated.h5", r"D:\DataScience_Assigment\SignLanguageProject\New Project\machine-learning-dse-i210-final-project-signlanguageclassification\data\external\labels.txt")
 
         offset = 20
         imgSize = 224
-
 
         while True:
             success, img = cap.read()
@@ -216,7 +219,6 @@ def sign_interpreter(model):
                     imgWhite = np.ones((imgSize, imgSize, 3), np.uint8) * 255
                     imgCrop = img[y - offset:y + h + offset, x - offset:x + w + offset]
 
-
                     aspectRatio = h / w
 
                     if aspectRatio > 1:
@@ -225,7 +227,8 @@ def sign_interpreter(model):
                         imgResize = cv2.resize(imgCrop, (wCal, imgSize))
                         wGap = math.ceil((imgSize - wCal) / 2)
                         imgWhite[:, wGap:wCal + wGap] = imgResize
-                        prediction, index = classifier.getPrediction(imgWhite, draw=False)
+                        prediction, index = model.getPrediction(imgWhite, draw=False)
+
                         # print(prediction, index)
 
                     else:
@@ -235,7 +238,7 @@ def sign_interpreter(model):
                         imgResizeShape = imgResize.shape
                         hGap = math.ceil((imgSize - hCal) / 2)
                         imgWhite[hGap:hCal + hGap, :] = imgResize
-                        prediction, index = classifier.getPrediction(imgWhite, draw=False)
+                        prediction, index = model.getPrediction(imgWhite, draw=False)
 
                     # cv2.rectangle(imgOutput, (x - offset, y - offset - 50),
                     #               (x - offset + 90, y - offset - 50 + 50), (255, 0, 255), cv2.FILLED)
@@ -271,20 +274,11 @@ def sign_interpreter(model):
         # else:
         #     break
 
-            # release video capture and destroy imshow windows
+        # release video capture and destroy imshow windows
         cap.release()
         cv.destroyAllWindows()
 
 
-
-
-
-
-
-
-
-
-
 # entry
 if __name__ == '__main__':
-    sign_interpreter('nn224x224')
+    sign_interpreter()
