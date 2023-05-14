@@ -104,6 +104,10 @@ def main(output_filepath):
         with open(os.path.join(output_filepath,'combined_augmented_data_v3.pkl'),'wb') as f:
             pickle.dump(combined_augmented_data, f)
             logging.info('Pickle of original image dataset and augmented dataset dumped into %s',output_filepath)
+        with open(os.path.join(output_filepath,'sign_mnist.pkl'),'wb') as f:
+            pickle.dump((X_train,y_train,X_test,y_test),f)
+            logging.info('Pickle of original image dataset and dumped into %s',output_filepath)
+
 
 #entry 
 if __name__ == '__main__':

@@ -9,15 +9,17 @@ import click
 
 
 @click.command()
-@click.option('--model', type=click.Choice(['NN', 'PLACEHOLDER']), default='NN', required=True)
+@click.option('--model', type=click.Choice(['NN-224x244', 'NN-28x28', 'PLACEHOLDER']), default='NN', required=True)
 # main entry for sign_language_interpreter functionality
 def main(model):
 
-    if model == 'NN':
+    if model == 'NN-224x244':
         print('running code for neural network')
         nn = get_models.get_NN()
         capture_video.sign_interpreter(nn)
-
+    elif model == 'NN-28x28':
+        nn = get_models.get_NN()
+        
     else:
         print('running code for second best model')
         pipeline = Pipeline(
