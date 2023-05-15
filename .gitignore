@@ -1,8 +1,8 @@
 # External Data should not be committed to the repository
 data/external/*
 venv
-src/models/*.h5
-src/models/*.txt
+models/*.h5
+models/*.txt
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
