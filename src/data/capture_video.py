@@ -200,7 +200,6 @@ def sign_interpreter(model, model_type):
 
         # cap = cv2.VideoCapture()
         detector = HandDetector(maxHands=1)
-        # classifier = Classifier(r"D:\DataScience_Assigment\SignLanguageProject\New Project\machine-learning-dse-i210-final-project-signlanguageclassification\data\external\my_cnn_model_updated.h5", r"D:\DataScience_Assigment\SignLanguageProject\New Project\machine-learning-dse-i210-final-project-signlanguageclassification\data\external\labels.txt")
 
         offset = 20
         imgSize = 224
@@ -240,8 +239,7 @@ def sign_interpreter(model, model_type):
                         imgWhite[hGap:hCal + hGap, :] = imgResize
                         prediction, index = model.getPrediction(imgWhite, draw=False)
 
-                    # cv2.rectangle(imgOutput, (x - offset, y - offset - 50),
-                    #               (x - offset + 90, y - offset - 50 + 50), (255, 0, 255), cv2.FILLED)
+
                     if round(prediction[index]) > 0.97:
                         print(round(prediction[index]))
                         cv2.rectangle(imgOutput, (x - offset, y - offset - 50),
