@@ -7,7 +7,7 @@ from cvzone.ClassificationModule import Classifier
 
 # function to load trained neural network
 def get_NN28x28():
-    return tf.keras.models.load_model('.models/nn_combined_original_livecamera.h5')
+    return tf.keras.models.load_model('./models/nn_combined_original_livecamera_augmented.h5')
 
 
 def get_NN224x224():
