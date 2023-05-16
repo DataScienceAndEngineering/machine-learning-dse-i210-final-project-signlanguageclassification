@@ -86,17 +86,18 @@ def get_cropped_image(img, x1, y1, x2, y2):
 
 def img_preprocessing(img, resolution, type_str):
     # convert color of image to grayscale
-    img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    # convert resolution of image
-    img = cv.resize(img, resolution)
-    # sharpening
-    # kernel = np.array([[0, -.7, 0],
-    #                [-.7, 4,-.7],
-    #                [0, -.7, 0]])
-    # img = cv.filter2D(src=img, ddepth=-1,kernel=kernel)
-    # extra preprocessing depending on model type
+    try:
+        img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        # convert resolution of image
+        img = cv.resize(img, resolution)
+    except Exception as ex:
+        print(ex)
+
     if 'keras' in type_str:
-        img = img.reshape((1,) + resolution + (1,))
+        try:
+            img = img.reshape((1,) + resolution + (1,))
+        except Exception as ex:
+            print(ex)
     elif type_str == 'debug':
         pass
     else:
@@ -108,9 +109,10 @@ def img_preprocessing(img, resolution, type_str):
 def sign_interpreter(model, model_type):
     # CONSTANTS
     # define resolution constant for image preprocessing
+
     res = (28, 28)
     # define delay to get image from video feed every number of frames
-    interval = 1
+    interval = 0.1
     # laplacian filter variance threshold
     lap_thres = 0
     # constant for rectangle spacing
@@ -160,40 +162,53 @@ def sign_interpreter(model, model_type):
                         frame_count += 1
                         # logic for getting image every interval
                         if frame_count % (fps * interval) == 0:
-                            # define laplacian filter to detect image if image is blurry (high variance = sharper image)
-                            laplacian = cv.Laplacian(cropped_img, cv.CV_64F).var()
-                            logging.debug('laplacian %s', laplacian)
-                            if laplacian > lap_thres:
+                            # # define laplacian filter to detect image if image is blurry (high variance = sharper image)
+                            # laplacian = cv.Laplacian(cropped_img, cv.CV_64F).var()
+                            # logging.debug('laplacian %s', laplacian)
+
+                            if 1 > lap_thres:
                                 # REPLACE CODE WITH IMREAD AND PASS INTO MODEL
                                 img = img_preprocessing(cropped_img, res, str(type(model)))
-                                debug_img = img_preprocessing(cropped_img, res, 'debug')
-                                cv.imshow('Cropped Image', debug_img)
-                                # TEMP TESTING CODE
-                                predictions = model.predict(img)
-                                print(predictions)
-                                index = np.argmax(predictions)
-                                print(index)
+                                if img.shape == (1, 28, 28, 1):
+                                    # TEMP TESTING CODE
+                                    predictions = model.predict(img)
+                                    print(predictions)
+                                    index = np.argmax(predictions)
+                                    print(index)
 
-                                print(letters[index])
+                                    print(letters[index])
+                                else:
+                                    continue
+
+                                # # Put text on the rectangle
+                                cv.putText(frame, letters[index],
+                                           (x1 - rect_space, y1 - rect_space),
+                                           cv.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
+                                # # Put text on the rectangle
+                                cv.putText(frame, str(predictions[0][index]),
+                                           (x1 - rect_space + 50, y1 - rect_space),
+                                           cv.FONT_HERSHEY_COMPLEX, 1, (0, 255, 0), 2)
 
                     # draw rectangular bound in frame if found
                     cv.rectangle(frame, (x1 - rect_space, y1 - rect_space),
-                                 (x2 + rect_space, y2 + rect_space), (0, 255, 0), 2)
+                                 (x2 + rect_space, y2 + rect_space), (0, 0, 255), 2)
 
                 # launch window and display
                 cv.imshow('Sign Language Interpreter', frame)
 
                 # quit if q is pressed
                 if cv.waitKey(25) & 0xFF == ord('q'):
-                    break
+                    # release video capture and destroy imshow windows
+                    cap.release()
+                    cv.destroyAllWindows()
 
             # # quit if video is not returned
             else:
-                break
+                continue
 
-            # release video capture and destroy imshow windows
-            cap.release()
-            cv.destroyAllWindows()
+
+
+
 
 
     else:
@@ -212,11 +227,16 @@ def sign_interpreter(model, model_type):
             hands, img = detector.findHands(img)
             try:
                 if hands:
+                    # as passing only one hand
                     hand = hands[0]
+                    # coordinates of the hand
                     x, y, w, h = hand['bbox']
 
                     imgWhite = np.ones((imgSize, imgSize, 3), np.uint8) * 255
                     imgCrop = img[y - offset:y + h + offset, x - offset:x + w + offset]
+
+                    # cv2.imshow("ImageWhite", imgWhite)
+                    cv2.imshow("ImageCrop", imgCrop)
 
                     aspectRatio = h / w
 
@@ -227,21 +247,11 @@ def sign_interpreter(model, model_type):
                         wGap = math.ceil((imgSize - wCal) / 2)
                         imgWhite[:, wGap:wCal + wGap] = imgResize
                         prediction, index = model.getPrediction(imgWhite, draw=False)
-
-                        # print(prediction, index)
-
                     else:
-                        k = imgSize / w
-                        hCal = math.ceil(k * h)
-                        imgResize = cv2.resize(imgCrop, (imgSize, hCal))
-                        imgResizeShape = imgResize.shape
-                        hGap = math.ceil((imgSize - hCal) / 2)
-                        imgWhite[hGap:hCal + hGap, :] = imgResize
-                        prediction, index = model.getPrediction(imgWhite, draw=False)
+                        pass
 
 
-                    if round(prediction[index]) > 0.97:
-                        print(round(prediction[index]))
+                    if round(prediction[index], 2) > 0.99:
                         cv2.rectangle(imgOutput, (x - offset, y - offset - 50),
                                       (x - offset + 150, y - offset - 50 + 50), (0, 0, 255), cv2.FILLED)
 
@@ -255,14 +265,11 @@ def sign_interpreter(model, model_type):
                         cv2.rectangle(imgOutput, (x - offset, y - offset),
                                       (x + w + offset, y + h + offset), (0, 0, 255), 4)
 
+                cv2.imshow("Image", imgOutput)
+                cv2.waitKey(1)
+
             except:
                 print("Take your hand back")
-
-                # cv2.imshow("ImageCrop", imgCrop)
-                # cv2.imshow("ImageWhite", imgWhite)
-
-            cv2.imshow("Image", imgOutput)
-            cv2.waitKey(1)
 
             # quit if q is pressed
             if cv.waitKey(25) & 0xFF == ord('q'):
