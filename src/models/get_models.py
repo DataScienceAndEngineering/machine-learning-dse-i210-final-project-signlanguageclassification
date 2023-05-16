@@ -11,5 +11,5 @@ def get_NN28x28():
 
 
 def get_NN224x224():
-    return Classifier('./models/my_cnn_model_updated.h5', './models/labels.txt')
+    return Classifier('./models/custom_cnn_model.h5', './models/labels.txt')
 
